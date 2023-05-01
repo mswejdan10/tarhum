@@ -1,0 +1,42 @@
+List<Map> schedules = [
+  {
+    'img': 'assets/clinics/clinics1.jpg',
+    'clinicName': 'عيادة. بيطرية ',
+    'reservedDate': 'الاحد والثلاثاء والاربعاء',
+    'numberPhone': '0521321543',
+    'address': 'الرياض',
+    'request': false,
+  },
+  {
+    'img': 'assets/clinics/clinics2.jpg',
+    'clinicName': 'عيادة. دليل العيادات البيطرية',
+    'reservedDate': 'طوال ايام الاسبوع',
+    'numberPhone': '0521321543',
+    'address': 'الرياض',
+    'request': false,
+  },
+  {
+    'img': 'assets/clinics/clinics3.jpg',
+    'clinicName': 'عيادة. بيت كلينك',
+    'reservedDate': 'السبت والاربعاء',
+    'numberPhone': '0521321543',
+    'address': 'الرياض',
+    'request': false,
+  },
+  {
+    'img': 'assets/clinics/clinics4.png',
+    'clinicName': 'عيادة. مركز الرعاية البيطري',
+    'reservedDate': 'الاثنين والخميس',
+    'numberPhone': '0521321543',
+    'address': 'الرياض',
+    'request': true,
+  },
+  {
+    'img': 'assets/clinics/clinics5.jpg',
+    'clinicName': 'عيادة. فيت كلينك',
+    'reservedDate': 'طوال ايام الاسبوع عدا الجمعه',
+    'numberPhone': '0521321543',
+    'address': 'الرياض',
+    'request': false,
+  },
+];
