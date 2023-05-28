@@ -1,63 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:medicare/controller/firebase_data.dart';
 import 'package:medicare/styles/colors.dart';
 import 'package:medicare/styles/styles.dart';
-import 'package:medicare/tabs/Category_Doctors.dart';
-
-List<Map> clinics = [
-  {
-    'img': 'assets/clinics/clinics1.jpg',
-    'doctorName': 'د. سعيد عبدالله',
-    'doctorTitle': 'عيون'
-  },
-  {
-    'img': 'assets/clinics/clinics2.jpg',
-    'doctorName': 'د. فهد العتيبي',
-    'doctorTitle': 'أسنان'
-  },
-  {
-    'img': 'assets/clinics/clinics3.jpg',
-    'doctorName': 'د. على مرزوق',
-    'doctorTitle': 'أسنان'
-  },
-  {
-    'img': 'assets/clinics/clinics4.jpg',
-    'doctorName': 'د. سحر ماجد',
-    'doctorTitle': 'عظام'
-  },
-  {
-    'img': 'assets/clinics/clinics5.jpg',
-    'doctorName': 'د. أحلام المطيري',
-    'doctorTitle': 'أمراض القلب'
-  }
-];
-List<Map> doctors = [
-  {
-    'img': 'assets/doctors/doctor01.jpeg',
-    'doctorName': 'د. سعيد عبدالله',
-    'doctorTitle': 'عيون'
-  },
-  {
-    'img': 'assets/doctors/doctor03.jpeg',
-    'doctorName': 'د. فهد العتيبي',
-    'doctorTitle': 'أسنان'
-  },
-  {
-    'img': 'assets/doctors/doctor02.png',
-    'doctorName': 'د. على مرزوق',
-    'doctorTitle': 'أسنان'
-  },
-  {
-    'img': 'assets/doctors/doctor04.jpeg',
-    'doctorName': 'د. سحر ماجد',
-    'doctorTitle': 'عظام'
-  },
-  {
-    'img': 'assets/doctors/doctor04.jpeg',
-    'doctorName': 'د. أحلام المطيري',
-    'doctorTitle': 'أمراض القلب'
-  }
-];
 
 class HomeTab extends StatelessWidget {
   final void Function() onPressedScheduleCard;
@@ -301,66 +245,6 @@ class ScheduleCard2 extends StatelessWidget {
   }
 }
 
-class CategoryIcon extends StatelessWidget {
-  String image;
-  String text;
-  final VoidCallback press;
-
-  CategoryIcon({
-    required this.image,
-    required this.text,
-    required this.press,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      splashColor: Color(MyColors.bg01),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const CategoryDoctors(),
-          ),
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Column(
-          children: [
-            GestureDetector(
-              onTap: press,
-              child: Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Color(MyColors.bg),
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                child: Image.asset(
-                  image,
-                  color: Color(MyColors.primary),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              text,
-              style: TextStyle(
-                color: Color(MyColors.primary),
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 // class SearchInput extends StatelessWidget {
 //   const SearchInput({
 //     Key? key,
@@ -417,7 +301,17 @@ class UserIntro extends StatefulWidget {
 }
 
 class _UserIntroState extends State<UserIntro> {
-  final user = FirebaseAuth.instance.currentUser!;
+  String _name = '';
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUseData().then((name) {
+      setState(() {
+        _name = name;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -440,7 +334,7 @@ class _UserIntroState extends State<UserIntro> {
               textAlign: TextAlign.center,
             ),
             Text(
-              user.email!,
+              _name,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
           ],

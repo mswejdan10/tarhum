@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:medicare/auth/loginScreen.dart';
 import 'package:medicare/screens/home.dart';
 
 class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({Key? key}) : super(key: key);
+
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
@@ -284,7 +287,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => SignUpScreen()),
+                                builder: (context) => loginScreen()),
                           );
                         },
                         child: Text(

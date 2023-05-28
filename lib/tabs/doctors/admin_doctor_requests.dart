@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:medicare/controller/firebase_data.dart';
 import 'package:medicare/screens/NavBar.dart';
 import 'package:medicare/styles/colors.dart';
 
@@ -9,64 +11,39 @@ class Adminrequests extends StatefulWidget {
   State<Adminrequests> createState() => _AdminrequestsState();
 }
 
-enum FilterStatus {
-  Upcoming,
-}
-
-List<Map> schedules = [
-  {
-    'img': 'assets/doctors/doctor03.jpeg',
-    'doctorName': 'د. فهد العتيبي',
-    'numberPhone': '0521321543',
-    'address': 'الطائف',
-    'request': 'false',
-    'status': FilterStatus.Upcoming,
-  },
-  {
-    'img': 'assets/doctors/doctor02.png',
-    'doctorName': 'د. على مرزوق',
-    'numberPhone': '0512123231',
-    'address': 'تابوك',
-    'request': 'false',
-    'status': FilterStatus.Upcoming,
-  },
-  {
-    'img': 'assets/doctors/doctor04.jpeg',
-    'doctorName': 'د. سحر ماجد',
-    'numberPhone': '0520999983',
-    'address': 'جدة',
-    'request': 'false',
-    'status': FilterStatus.Upcoming,
-  },
-  {
-    'img': 'assets/doctors/doctor04.jpeg',
-    'doctorName': 'د. أحلام المطيري',
-    'numberPhone': '0521534233',
-    'address': 'مكة',
-    'request': 'false',
-    'status': FilterStatus.Upcoming,
-  },
-  {
-    'img': 'assets/doctors/doctor01.jpeg',
-    'doctorName': 'د. سعيد عبدالله',
-    'numberPhone': '0521321543',
-    'address': 'الرياض',
-    'request': 'false',
-    'status': FilterStatus.Upcoming,
-  },
-];
-
 class _AdminrequestsState extends State<Adminrequests> {
-  FilterStatus status = FilterStatus.Upcoming;
-  Alignment _alignment = Alignment.centerLeft;
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Stream<QuerySnapshot> stream = FirebaseFirestore.instance
+      .collection('doctors')
+      .where('doctors_acceptance', isEqualTo: false)
+      .snapshots();
+  String userId = "";
+
+  Future<void> updateDocumentRole() async {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('customUsers')
+        .where('uid', isEqualTo: userId)
+        .get();
+
+    await FirebaseFirestore.instance
+        .collection('customUsers')
+        .doc(snapshot.docs[0].id)
+        .update({'role': 'doctor'});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUserUid().then((uid) {
+      setState(() {
+        userId = uid;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<Map> filteredSchedules = schedules.where((var schedule) {
-      return schedule['status'] == status;
-    }).toList();
-
     return SafeArea(
       child: Directionality(
         textDirection: TextDirection.rtl,
@@ -90,40 +67,29 @@ class _AdminrequestsState extends State<Adminrequests> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          for (FilterStatus filterStatus in FilterStatus.values)
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    if (filterStatus == FilterStatus.Upcoming) {
-                                      status = FilterStatus.Upcoming;
-                                      _alignment = Alignment.centerLeft;
-                                    }
-                                  });
-                                },
-                                child: Row(
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        scaffoldKey.currentState!.openDrawer();
-                                      },
-                                      child: CircleAvatar(
-                                        backgroundImage:
-                                            AssetImage('assets/person.jpg'),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 140,
-                                    ),
-                                    Text("طلبات الانضمام للأطباء",
-                                        style: TextStyle(
-                                            color: Color(
-                                                MyColors.kprimaryButtonsColor),
-                                            fontWeight: FontWeight.w800)),
-                                  ],
+                          Expanded(
+                            child: Row(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    scaffoldKey.currentState!.openDrawer();
+                                  },
+                                  child: CircleAvatar(
+                                    backgroundImage:
+                                        AssetImage('assets/person.jpg'),
+                                  ),
                                 ),
-                              ),
+                                SizedBox(
+                                  width: 140,
+                                ),
+                                Text("طلبات الانضمام للأطباء",
+                                    style: TextStyle(
+                                        color: Color(
+                                            MyColors.kprimaryButtonsColor),
+                                        fontWeight: FontWeight.w800)),
+                              ],
                             ),
+                          ),
                         ],
                       ),
                     ),
@@ -133,102 +99,151 @@ class _AdminrequestsState extends State<Adminrequests> {
                   height: 20,
                 ),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: filteredSchedules.length,
-                    itemBuilder: (context, index) {
-                      var _schedule = filteredSchedules[index];
-                      bool isLastElement =
-                          filteredSchedules.length + 1 == index;
-                      return Card(
-                        margin: !isLastElement
-                            ? EdgeInsets.only(bottom: 20)
-                            : EdgeInsets.zero,
-                        child: Padding(
-                          padding: EdgeInsets.all(15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundImage:
-                                        AssetImage(_schedule['img']),
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        _schedule['doctorName'],
-                                        textAlign: TextAlign.right,
-                                        style: TextStyle(
-                                          color: Color(MyColors.header01),
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 20),
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: stream,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      }
+
+                      if (snapshot.hasData) {
+                        return ListView.builder(
+                          itemCount: snapshot.data!.docs.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            Map<String, dynamic> data =
+                                snapshot.data!.docs[index].data()
+                                    as Map<String, dynamic>;
+                            String name = data['name'];
+                            String numberPhone = data['number_phone'];
+                            String address = data['address'];
+                            // String image = data['image'];
+                            String documentId = snapshot.data!.docs[index].id;
+
+                            return Card(
+                              child: Padding(
+                                padding: EdgeInsets.all(15),
                                 child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
                                   children: [
-                                    Text(
-                                      'رقم الهاتف : ${_schedule['numberPhone']}',
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54,
+                                    Row(
+                                      children: [
+                                        // CircleAvatar(
+                                        //   child: ClipOval(
+                                        //       child: Image.network(
+                                        //     image,
+                                        //     fit: BoxFit.cover,
+                                        //   )),
+                                        // ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              name,
+                                              textAlign: TextAlign.right,
+                                              style: TextStyle(
+                                                color: Color(MyColors.header01),
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 20),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'رقم الهاتف : $numberPhone',
+                                            textAlign: TextAlign.right,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                          Text(
+                                            'عنوان العيادة:  $address',
+                                            style: TextStyle(
+                                                color: Color(MyColors.grey02)),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Text(
-                                      'عنوان الطبيب:  ${_schedule['address']}',
-                                      style: TextStyle(
-                                          color: Color(MyColors.grey02)),
-                                    )
+                                    SizedBox(
+                                      height: 15,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        SizedBox(
+                                          width: 140,
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Color(MyColors.yellow01),
+                                            ),
+                                            child: Text('قبول '),
+                                            onPressed: () {
+                                              Future doctorAccepted() async {
+                                                CollectionReference clinicsref =
+                                                    FirebaseFirestore.instance
+                                                        .collection('doctors');
+
+                                                clinicsref
+                                                    .doc(documentId)
+                                                    .update({
+                                                  'doctors_acceptance': true,
+                                                });
+
+                                                updateDocumentRole();
+                                              }
+
+                                              doctorAccepted();
+                                            },
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 140,
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.red[400],
+                                            ),
+                                            child: Text('رفض '),
+                                            onPressed: () => {},
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  SizedBox(
-                                    width: 140,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        primary: Color(MyColors.yellow01),
-                                      ),
-                                      child: Text('قبول '),
-                                      onPressed: () => {},
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 140,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        primary: Colors.red[500],
-                                      ),
-                                      child: Text('رفض '),
-                                      onPressed: () => {},
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                            );
+                          },
+                        );
+                      } else if (snapshot.hasError) {
+                        Center(child: Text('لا يوجد عيادات'));
+                      }
+                      return Center(
+                        child: SizedBox(
+                            width: 50,
+                            height: 50,
+                            child: CircularProgressIndicator()),
                       );
                     },
                   ),
-                )
+                ),
               ],
             ),
           ),
